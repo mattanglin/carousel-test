@@ -8,7 +8,6 @@ const slides = Array.from({ length: 5 }).map(() => {
   const height = sizes[Math.floor(Math.random() * sizes.length)]
 
   return ({
-
     src: `http://placekitten.com/${width}/${height}`,
     alt: 'Fluffy Little Kittens'
   })
