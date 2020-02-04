@@ -8,9 +8,9 @@ export interface CarouselProps {
 
 };
 
-const Carousel: React.FC<CarouselProps> = ({
+export const Carousel = ({
   images = [],
-}) => {
+}: CarouselProps) => {
   console.log({ images });
 
   return (
