@@ -96,10 +96,10 @@ export const slideNavigatorStyle = {
   position: 'absolute' as 'absolute',
   width: '100%',
   left: 0,
-  bottom: 0,
+  bottom: 30,
   display: 'flex',
   justifyContent: 'center',
-  pointerEvents: 'none' as 'none',
+  height: 0,
 }
 export const slideNavigatorDotStyle = (isCurrent: boolean) => ({
   width: 8,
@@ -108,6 +108,7 @@ export const slideNavigatorDotStyle = (isCurrent: boolean) => ({
   borderRadius: '50%',
   margin: 4,
   marginBottom: 16,
+  cursor: 'pointer',
   transition: `300ms transform ${bounceEase}`,
   transform: 'scale(1,1)',
   ...(isCurrent ? { transform: 'scale(1.4, 1.4)'} : {})
