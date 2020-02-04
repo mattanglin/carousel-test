@@ -5,7 +5,9 @@ module.exports = {
   title: 'Carousel Skills Test for Instrument',
 
   // Allow styleguide to parse typescript props
-  propsParser: require('react-docgen-typescript').withCustomConfig('tsconfig.json').parse,
+  propsParser: require('react-docgen-typescript').withDefaultConfig({
+    savePropValueAsString: true,
+  }).parse,
 
   skipComponentsWithoutExample: true,
 
@@ -26,7 +28,7 @@ module.exports = {
   usageMode: 'expand',
 
   // Build directory
-  styleguideDir: 'public/docs',
+  styleguideDir: 'docs',
 
   // Version
   version: process.env.npm_package_version,
