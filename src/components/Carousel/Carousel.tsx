@@ -85,8 +85,8 @@ export const Carousel = ({
   const [oldSlide, setOldSlide] = useState(-1);
   const [transition, setTransition] = useState('next');
   // Track timeout and remaining pause time as refs to avoid unnecessary renders
-  const timeoutRef = useRef(null);
-  const pauseTimeRef = useRef(null);
+  const timerRef = useRef<(ReturnType<typeof setTimeout>)>();
+  const pauseTimeRef = useRef<number | null>(null);
 
   // slide navigation callbacks
   const goToSlide = useCallback((idx: number, transition: Transition = 'jump') => {
@@ -105,6 +105,11 @@ export const Carousel = ({
 
 
   // Slide Timer function
+  const advanceSlideTimeout = useCallback((timer: number = timeout) => {
+     timerRef.current = setTimeout(() => {
+      nextSlide();
+    }, timer * 1000);
+  }, [nextSlide]);
 
   // Pause functionality for hover
 
@@ -112,11 +117,13 @@ export const Carousel = ({
 
 
   useEffect(() => {
+    // Set timer to auto advance slides
+    advanceSlideTimeout();
 
-  })
-
-  console.log({
-    aspectRatio,
+    return () => {
+      // Clear any set timeouts
+      clearTimeout(timerRef.current!)
+    }
   })
 
   // We don't like empty carousels!
