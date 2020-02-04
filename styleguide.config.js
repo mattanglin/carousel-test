@@ -28,7 +28,7 @@ module.exports = {
   usageMode: 'expand',
 
   // Build directory
-  styleguideDir: 'public/docs',
+  styleguideDir: 'docs',
 
   // Version
   version: process.env.npm_package_version,
