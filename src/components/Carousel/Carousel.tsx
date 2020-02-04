@@ -62,12 +62,12 @@ export interface CarouselProps {
  *
  * MVP:
  * - [ ] Basic Slide Transition
- * - [ ] Auto-advance every 10 sec
- * - [ ] Pause advance on hover
- * - [ ] Loop after last
- * - [ ] Prev/Next Controls
- * - [ ] Paging dots
- * - [ ] responsive to 480px
+ * - [x] Auto-advance every 10 sec
+ * - [x] Pause advance on hover
+ * - [x] Loop after last
+ * - [x] Prev/Next Controls
+ * - [x] Paging dots
+ * - [x] responsive to 480px
  * - [ ] Meets Accessibility Standards
  *
  * nth:
@@ -84,15 +84,25 @@ export const Carousel = ({
   // State for handling slide transitions
   const [oldSlide, setOldSlide] = useState(-1);
   const [transition, setTransition] = useState('next');
-  // Track timeout and remaining pause time as refs to avoid unnecessary renders
-  const timerRef = useRef<(ReturnType<typeof setTimeout>)>();
-  const pauseTimeRef = useRef<number | null>(null);
+
+  // Track timeout state and remaining pause time as refs to avoid unnecessary renders
+  const [carouselIsActive, setCarouselIsActive] = useState(true);
+
+  const timeoutRef = useRef<(ReturnType<typeof setTimeout>)>();
+  const lastSlideTimeoutRef = useRef<number>();
+  const remainingTimeRef = useRef<number>();
 
   // slide navigation callbacks
   const goToSlide = useCallback((idx: number, transition: Transition = 'jump') => {
+    // Only change if we're going to a valid slide
     if (idx < slides.length) {
-      setOldSlide(currentSlide);
+      // Store time of slide change && Reset remaining time (in case of pause)
+      lastSlideTimeoutRef.current = Date.now();
+      remainingTimeRef.current = timeout * 1000;
+
+      // Set current slide, old slide, and transition type
       setCurrentSlide(idx);
+      setOldSlide(currentSlide);
       setTransition(transition);
     }
   }, [setCurrentSlide]);
@@ -103,28 +113,39 @@ export const Carousel = ({
     goToSlide(currentSlide === 0 ? slides.length - 1 : currentSlide - 1, 'previous');
   }, [slides, currentSlide, setCurrentSlide]);
 
+  // Slide timeout callback
+  const advanceSlideTimeout = useCallback((timer: number = (timeout * 1000)) => {
+     timeoutRef.current = setTimeout(() => nextSlide(), timer);
+  }, [currentSlide]);
 
-  // Slide Timer function
-  const advanceSlideTimeout = useCallback((timer: number = timeout) => {
-     timerRef.current = setTimeout(() => {
-      nextSlide();
-    }, timer * 1000);
-  }, [nextSlide]);
+  // Pause/resume functionality for hover
+  const pauseSlides = useCallback(() =>  setCarouselIsActive(false), []);
+  const resumeSlides = useCallback(() =>  setCarouselIsActive(true), []);
 
-  // Pause functionality for hover
-
-
-
-
+  // Handle carousel pausing/unpausing
   useEffect(() => {
-    // Set timer to auto advance slides
-    advanceSlideTimeout();
-
-    return () => {
-      // Clear any set timeouts
-      clearTimeout(timerRef.current!)
+    if (carouselIsActive) {
+      // Resume carousel with remeaining time when resuming active
+      advanceSlideTimeout(remainingTimeRef.current!)
+    } else {
+      // Stop carousel auto-advance timeout and store remaining transition time
+      clearTimeout(timeoutRef.current!);
+      remainingTimeRef.current = Date.now() - lastSlideTimeoutRef.current!;
     }
-  })
+  }, [carouselIsActive]);
+
+  // Handle carousel auto-advance slide changes
+  useEffect(() => {
+    // Auto-advance slide if not paused
+    if (carouselIsActive) {
+      advanceSlideTimeout();
+    }
+
+    // Clear any auto-advance timeouts on unmount
+    return () => {
+      clearTimeout(timeoutRef.current!)
+    }
+  }, [currentSlide])
 
   // We don't like empty carousels!
   if (!slides || !slides.length) {
@@ -147,7 +168,12 @@ export const Carousel = ({
           )
         })}
       </div>
-      <div className="controls" style={{ position: 'absolute', zIndex: 10, top: 0, right: 0, bottom: 0, left: 0 }}>
+      <div
+        className="controls"
+        style={{ position: 'absolute', zIndex: 10, top: 0, right: 0, bottom: 0, left: 0 }}
+        onMouseEnter={pauseSlides}
+        onMouseLeave={resumeSlides}
+      >
         <div onClick={previousSlide}>
           Previous
         </div>
