@@ -18,7 +18,7 @@ const App = () => (
   <div>
     <h1>Test App for Carousel Component</h1>
     <div style={{ margin: 'auto', marginTop: 30, maxWidth: 600 }}>
-      <Carousel slides={slides} timeout={3} />
+      <Carousel slides={slides} timeout={10} />
     </div>
   </div>
 );

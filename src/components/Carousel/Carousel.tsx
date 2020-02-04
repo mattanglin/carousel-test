@@ -1,42 +1,23 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-
-const containerStyle = (aspectRatio: number) => {
-  return {
-    position: 'relative' as 'relative',
-    width: '100%',
-    paddingTop: `${aspectRatio! * 100}%`,
-  };
-}
-
-// Basic slide Style
-type Transition = 'next' | 'previous' | 'jump';
-const slideStyle = (aspectRatio: number, isCurrent: boolean, isOld?: boolean, transition?: Transition) => {
-
-  return {
-    background: 'magenta',
-    paddingTop: `${aspectRatio! * 100}%`,
-    width: '100%',
-    position: 'absolute' as 'absolute',
-    top: 0,
-    left: 0,
-    opacity: 0,
-
-    // Current Slide Style
-    ...(isCurrent ? {
-      border: '2px solid magenta',
-      opacity: 1,
-    } : {}),
-
-    // Old Slide Style
-    // TODO
-
-  };
-}
-
-export interface SlideImage {
-  src: string;
-  alt?: string
-}
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
+import {
+  containerStyle,
+  slideStyle,
+  slideNavigatorStyle,
+  slideNavigatorDotStyle,
+  previousSlideStyle,
+  nextSlideStyle,
+} from './style';
+import {
+  Transition,
+  SlideImage,
+} from './types';
+import NextArrow from './NextArrow';
+import PreviousArrow from './PreviousArrow';
 
 export interface CarouselProps {
   /**
@@ -55,6 +36,7 @@ export interface CarouselProps {
    */
   aspectRatio?: number;
 };
+
 
 /**
  * The image carousel takes an array of image urls (ideally with alt text)
@@ -83,7 +65,7 @@ export const Carousel = ({
   const [currentSlide, setCurrentSlide] = useState(0);
   // State for handling slide transitions
   const [oldSlide, setOldSlide] = useState(-1);
-  const [transition, setTransition] = useState('next');
+  const [transition, setTransition] = useState<Transition>('next');
 
   // Track timeout state and remaining pause time as refs to avoid unnecessary renders
   const [carouselIsActive, setCarouselIsActive] = useState(true);
@@ -94,29 +76,29 @@ export const Carousel = ({
 
   // slide navigation callbacks
   const goToSlide = useCallback((idx: number, transition: Transition = 'jump') => {
-    // Only change if we're going to a valid slide
-    if (idx < slides.length) {
+    // Only change if we're going to a new, valid slide
+    if (idx !== currentSlide && idx < slides.length) {
       // Store time of slide change && Reset remaining time (in case of pause)
       lastSlideTimeoutRef.current = Date.now();
       remainingTimeRef.current = timeout * 1000;
 
       // Set current slide, old slide, and transition type
+      setTransition(transition);
       setCurrentSlide(idx);
       setOldSlide(currentSlide);
-      setTransition(transition);
     }
-  }, [setCurrentSlide]);
+  }, [currentSlide, slides.length, timeout]);
   const nextSlide = useCallback(() => {
     goToSlide((currentSlide + 1) % slides.length, 'next');
-  }, [slides, currentSlide, setCurrentSlide]);
+  }, [goToSlide, slides, currentSlide]);
   const previousSlide = useCallback(() => {
     goToSlide(currentSlide === 0 ? slides.length - 1 : currentSlide - 1, 'previous');
-  }, [slides, currentSlide, setCurrentSlide]);
+  }, [goToSlide, slides, currentSlide]);
 
   // Slide timeout callback
   const advanceSlideTimeout = useCallback((timer: number = (timeout * 1000)) => {
      timeoutRef.current = setTimeout(() => nextSlide(), timer);
-  }, [currentSlide]);
+  }, [nextSlide, timeout]);
 
   // Pause/resume functionality for hover
   const pauseSlides = useCallback(() =>  setCarouselIsActive(false), []);
@@ -160,7 +142,7 @@ export const Carousel = ({
           const isOld = idx === oldSlide;
 
           return (
-            <div key={`slide-${idx}-${slide.src}`} style={{ ...slideStyle(aspectRatio, isCurrent, isOld) }}>
+            <div key={`slide-${idx}-${slide.src}`} style={{ ...slideStyle(aspectRatio, isCurrent, isOld, transition) }}>
               <div style={{ position: 'absolute' as 'absolute', top: 0, right: 0, bottom: 0, left: 0, overflow: 'hidden' }}>
                 <img style={{ objectFit: 'cover', width: '100%', height: '100%', objectPosition: 'center' }} src={slide.src} alt={slide.alt} />
               </div>
@@ -174,13 +156,13 @@ export const Carousel = ({
         onMouseEnter={pauseSlides}
         onMouseLeave={resumeSlides}
       >
-        <div onClick={previousSlide}>
-          Previous
+        <div onClick={previousSlide} style={previousSlideStyle}>
+          <PreviousArrow />
         </div>
-        <div onClick={nextSlide}>
-          Next
+        <div onClick={nextSlide} style={nextSlideStyle}>
+          <NextArrow />
         </div>
-        <div className="dots">
+        <div className="dots" style={slideNavigatorStyle}>
           {slides.map((slide, idx) => {
             const isCurrent = idx === currentSlide;
 
@@ -189,10 +171,8 @@ export const Carousel = ({
                 key={`goto-slide-${idx}-${slide.src}`}
                 className="dot"
                 onClick={() => goToSlide(idx)}
-                style={{ color: isCurrent ? 'magenta' : 'black'}}
-              >
-                {idx}
-              </div>
+                style={slideNavigatorDotStyle(isCurrent)}
+              />
             );
           })}
         </div>
