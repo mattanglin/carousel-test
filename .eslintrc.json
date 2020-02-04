@@ -1,0 +1,56 @@
+{
+  "extends": ["react-app"],
+  "rules": {
+    "align": false,
+    "array-type": [true, "array"],
+    "arrow-parens": 0,
+    "arrow-return-shorthand": [false],
+    "comment-format": [true, "check-space"],
+    "import-blacklist": [true, "rxjs"],
+    "import-name": false,
+    "interface-over-type-literal": false,
+    "interface-name": false,
+    "max-line-length": [true, 120],
+    "member-access": false,
+    "member-ordering": [true, { "order": "fields-first" }],
+    "newline-before-return": 0,
+    "no-any": false,
+    "no-empty-interface": false,
+    "no-import-side-effect": [true],
+    "no-increment-decrement": false,
+    "no-inferrable-types": [true, "ignore-params", "ignore-properties"],
+    "no-invalid-this": 0,
+    "no-null-keyword": false,
+    "no-require-imports": false,
+    "no-submodule-imports": [true, "@src", "rxjs", "@material-ui/core", "@material-ui/icons"],
+    "no-this-assignment": [true, { "allow-destructuring": true }],
+    "no-trailing-whitespace": true,
+    "object-literal-sort-keys": false,
+    "object-literal-shorthand": false,
+    "one-variable-per-declaration": [false],
+    "only-arrow-functions": [true, "allow-declarations"],
+    "ordered-imports": [false],
+    "prefer-method-signature": false,
+    "quotemark": [true, "single", "jsx-double"],
+    "trailing-comma": [
+      true,
+      {
+        "singleline": "never",
+        "multiline": {
+          "objects": "always",
+          "arrays": "always",
+          "functions": "never",
+          "typeLiterals": "ignore"
+        },
+        "esSpecCompliant": true
+      }
+    ],
+    "no-console": 0,
+    "triple-equals": [true, "allow-null-check"],
+    "type-literal-delimiter": true,
+    "typedef": [true, "parameter", "property-declaration"],
+    "variable-name": [true, "ban-keywords", "check-format", "allow-pascal-case", "allow-leading-underscore"],
+    "jsx-no-lambda": false,
+    "jsx-no-multiline-js": false
+  }
+}
